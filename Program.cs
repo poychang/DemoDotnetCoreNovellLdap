@@ -11,6 +11,9 @@ namespace DemoDotnetCoreNovellLdap
 
             var simpleAuthResult = SimpleLdapAuth(User.username, User.password);
             Console.WriteLine($"LDAP Auth Result: {simpleAuthResult}");
+            var selfAuthResult = SelfLdapAuth(User.username, User.password);
+            Console.WriteLine($"LDAP Auth Result: {selfAuthResult}");
+        }
 
         /// <summary>
         /// 簡單驗證 LDAP 帳戶
@@ -58,6 +61,32 @@ namespace DemoDotnetCoreNovellLdap
                 throw e;
             }
         }
+
+        /// <summary>
+        /// 簡單驗證 LDAP 帳戶
+        /// </summary>
+        /// <remarks>不需要管理者帳號的寫法</remarks>
+        /// <param name="username">帳號</param>
+        /// <param name="password">密碼</param>
+        /// <returns>驗證是否成功</returns>
+        public static bool SelfLdapAuth(string username, string password)
+        {
+            var Host = "ldap.forumsys.com";
+            var BaseDC = "dc=example,dc=com";
+
+            try
+            {
+                using (var connection = new LdapConnection())
+                {
+                    connection.Connect(Host, LdapConnection.DEFAULT_PORT);
+                    connection.Bind($"uid={username},{BaseDC}", password);
+                    return connection.Bound;
+                }
+            }
+            catch (LdapException e)
+            {
+                throw e;
+            }
         }
     }
 }
